@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Day of Week Grid</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #fff; }
+        .grid-table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        .grid-table th, .grid-table td { border: 1px solid #999; text-align: center; padding: 8px; }
+        .highlight-header { background-color: #4CAF50; color: #fff; font-weight: bold; border-right: 5px solid #000; }
+        .day-header { background-color: #800080; color: #fff; font-weight: bold; padding: 10px 0; }
+        .weekday-header { background-color: #fff; color: #000; font-weight: bold; } /* Updated for normal weekday headers */
+        .alt-row { background-color: #f2f2f2; }
+        input[type="checkbox"]:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        input[type="checkbox"]:checked {
+            outline: 2px solid #4CAF50;  /* Highlighted selections */
+        }
+        #output { margin-top: 20px; padding: 10px; border: 1px solid #000; background-color: #f9f9f9; min-height: 50px; }
+
+        /* Responsive Design for Mobile Devices */
+        @media screen and (max-width: 600px) {
+            .grid-table th, .grid-table td {
+                font-size: 0.8rem;
+                padding: 4px;
+            }
+        }
+
+        /* Sticky Header for Grid */
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: #800080;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <table class="grid-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th colspan="6" class="day-header">Day of Week Allowed</th>
+            </tr>
+            <tr>
+                <th class="highlight-header">Sort Day</th>
+                <th class="weekday-header">Monday</th>
+                <th class="weekday-header">Tuesday</th>
+                <th class="weekday-header">Wednesday</th>
+                <th class="weekday-header">Thursday</th>
+                <th class="weekday-header">Friday</th>
+                <th class="weekday-header">Saturday</th>
+            </tr>
+        </thead>
+        <tbody>
+            <script>
+                const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+                days.forEach((sortDay, rowIndex) => {
+                    document.write(`<tr class="${rowIndex % 2 === 0 ? 'alt-row' : ''}"><td>${sortDay}</td>`);
+
+                    days.forEach((allowedDay) => {
+                        const isSaturdayColumnDisabled = (allowedDay === 'Saturday' && sortDay !== 'Saturday');
+                        const isSaturdayRowDisabled = (sortDay === 'Saturday' && allowedDay !== 'Saturday');
+                        const isDisabled = isSaturdayColumnDisabled || isSaturdayRowDisabled;
+                        const tooltip = isDisabled ? 'title="Saturday Plans can only be selected on Saturday."' : '';
+
+                        document.write(`<td>
+                            <input type="checkbox" ${isDisabled ? 'disabled' : ''} ${tooltip}
+                            onchange="updateOutput('${sortDay}', '${allowedDay}', this.checked)">
+                        </td>`);
+                    });
+
+                    document.write('</tr>');
+                });
+            </script>
+        </tbody>
+    </table>
+
+    <div id="output"></div>
+
+    <button onclick="resetSelections()">Reset Selections</button>
+
+    <script>
+        function updateOutput(sortDay, allowedDay, isChecked) {
+            const outputDiv = document.getElementById('output');
+            let dayDiv = document.getElementById(`sort-${sortDay}`);
+
+            if (!dayDiv) {
+                dayDiv = document.createElement('div');
+                dayDiv.id = `sort-${sortDay}`;
+                dayDiv.innerHTML = `<strong>Sort Day ${sortDay}:</strong> <span id="plans-${sortDay}"></span>`;
+                outputDiv.appendChild(dayDiv);
+            }
+
+            const plansSpan = document.getElementById(`plans-${sortDay}`);
+            let plans = plansSpan.textContent.split(', ').filter(Boolean);
+
+            if (isChecked) {
+                plans.push(`${allowedDay} Plans`);
+            } else {
+                plans = plans.filter(p => p !== `${allowedDay} Plans`);
+            }
+
+            plansSpan.textContent = plans.join(', ');
+
+            if (plans.length === 0) {
+                outputDiv.removeChild(dayDiv);
+            }
+        }
+
+        function resetSelections() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+            document.getElementById('output').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
