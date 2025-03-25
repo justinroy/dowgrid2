@@ -5,19 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Day of Week Grid</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #fff; }
+        body { font-family: Arial, sans-serif; background-color: #f0f8ff; }
         .grid-table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        .grid-table th, .grid-table td { border: 1px solid #999; text-align: center; padding: 8px; }
-        .highlight { background-color: #4CAF50; color: #fff; }
-        .day-header { background-color: #800080; color: #fff; font-weight: bold; padding: 10px 0; text-align: center; }
+        .grid-table th, .grid-table td { border: 1px solid #002147; text-align: center; padding: 8px; }
+        .highlight { background-color: #002147; color: #FFD700; font-weight: bold; }
         .grey-bg { background-color: #d9d9d9; }
+        .output { margin-top: 20px; background-color: #fff8dc; padding: 10px; border: 1px solid #002147; color: #002147; }
+        .bold { font-weight: bold; color: #002147; }
+        #resetButton { background-color: #FFD700; border: 2px solid #002147; color: #002147; padding: 5px 15px; cursor: pointer; }
+        #resetButton:hover { background-color: #002147; color: #FFD700; }
     </style>
 </head>
 <body>
-    <div class="day-header">Day of Week Allowed</div>
-    <button id="resetButton">Reset Defaults</button>
     <table class="grid-table">
         <thead>
+            <tr>
+                <th></th>
+                <th colspan="6" class="highlight">Allowed Day of Week</th>
+            </tr>
             <tr>
                 <th class="highlight">Sort Day</th>
                 <th>Monday</th>
@@ -27,11 +32,6 @@
                 <th>Friday</th>
                 <th>Saturday</th>
             </tr>
-            <tr>
-                <td class="highlight"></td>
-                <td colspan="5" class="day-header">Day of Week Allowed</td>
-                <td></td>
-            </tr>
         </thead>
         <tbody>
             <tr>
@@ -40,8 +40,8 @@
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
             </tr>
             <tr>
                 <td class="highlight">Tuesday</td>
@@ -49,8 +49,8 @@
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
             </tr>
             <tr>
                 <td class="highlight">Wednesday</td>
@@ -58,8 +58,8 @@
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
             </tr>
             <tr>
                 <td class="highlight">Thursday</td>
@@ -67,8 +67,8 @@
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
             </tr>
             <tr>
                 <td class="highlight">Friday</td>
@@ -76,8 +76,8 @@
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
+                <td><input type="checkbox"></td>
             </tr>
             <tr>
                 <td class="highlight">Saturday</td>
@@ -85,13 +85,45 @@
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
                 <td><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox"></td>
-                <td class="grey-bg"><input type="checkbox" checked></td>
+                <td><input type="checkbox"></td>
+                <td><input type="checkbox" checked></td>
+            </tr>
+            <tr>
+                <td colspan="7" style="text-align: left;">
+                    <button id="resetButton">Reset Defaults</button>
+                </td>
             </tr>
         </tbody>
     </table>
 
+    <div class="output" id="output">Selected Days: </div>
+
     <script>
+        function updateOutput() {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const output = [];
+
+            document.querySelectorAll('.grid-table tbody tr').forEach((row) => {
+                const labelCell = row.querySelector('.highlight');
+                if (!labelCell) return; // Skip rows without a label (like the button row)
+
+                const checkedDays = [];
+                const inputs = row.querySelectorAll('input[type="checkbox"]');
+                inputs.forEach((input, colIndex) => {
+                    if (input.checked) {
+                        checkedDays.push(days[colIndex]);
+                    }
+                });
+                output.push(`<span class="bold">${labelCell.textContent}</span>: ${checkedDays.join(', ') || 'None'}`);
+            });
+
+            document.getElementById('output').innerHTML = `<strong>Selected Days:</strong><br>` + output.join('<br>');
+        }
+
+        document.querySelectorAll('.grid-table tbody input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updateOutput);
+        });
+
         document.getElementById('resetButton').addEventListener('click', function () {
             const defaultChecked = [
                 [true, true, true, true, false, false], // Monday
@@ -107,10 +139,15 @@
             checkboxes.forEach((row, rowIndex) => {
                 const inputs = row.querySelectorAll('input[type="checkbox"]');
                 inputs.forEach((input, colIndex) => {
-                    input.checked = defaultChecked[rowIndex][colIndex];
+                    input.checked = defaultChecked[rowIndex]?.[colIndex] || false;
                 });
             });
+
+            updateOutput();
         });
+
+        // Initialize the output on page load
+        window.onload = updateOutput;
     </script>
 </body>
 </html>
